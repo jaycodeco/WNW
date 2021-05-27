@@ -30,9 +30,30 @@ class face_bot:
         self.soup = BeautifulSoup(self.page, 'lxml')
         
     def grab(self):
-        self.val_grab = self.soup.find_all('h3', class_='cd__headline')
+        # self.val_grab = self.soup.find_all('h3', class_='cd__headline')
+        self.titles =[]
+        self.links = []
+        
+        sections = self.soup.find_all('section')
+        top = sections[1]
+        
+        columns = top.find_all('div', class_='column')
+        
+        for column in columns:
+            title = column.find('h3', class_='cd__headline')
+            if title:
+                link = title.a['href']
+                self.titles.append(title)
+                
+                if 'https://edition.cnn.com' in link:
+                    self.links.append(link)
+                else:
+                    self.links.append('https://edition.cnn.com{}'.format(link))
+        
         print('\n\n######################\n\n\n')
-        print(self.val_grab)
+        
+        
+        print(self.links)
     
     def focus(self, contact):
         search = self.driver.find_element_by_xpath('//button[@class="_1Ek-U"]')
@@ -73,15 +94,18 @@ bot.goto("https://edition.cnn.com/")
 bot.getCode()
 bot.grab()
 
-news = bot.val_grab
+news = bot.titles
+links = bot.links
 bot.goto('https://web.whatsapp.com/')
 
 
-bot.focus('Claud')
-for info in news:
+bot.focus('zarbi')
+for i, info in enumerate(news):
     bot.send(info.text)
+    bot.send(links[i])
 
-bot.focus('Wiston')
-for info in news:
-    bot.send(info.text)
+
+# bot.focus('Wiston')
+# for info in news:
+#     bot.send(info.text)
 
